@@ -1,4 +1,5 @@
 import pygame
+from src.Misc.level_transition import Level_Transition
 from src.Core.HUD import HUD
 from src.Core.World import World
 import src.Globals.settings as settings
@@ -12,13 +13,15 @@ class Main:
         self.clock = pygame.Clock()
         self.world = World()
         self.hud = HUD(self.world)
+        self.level_transition_animation = Level_Transition()
 
     def process_input(self):
         for event in pygame.event.get():
             if event.type is pygame.QUIT:
                 quit()
-            self.world.process_input(event)
-            self.hud.process_input(event)
+            if self.level_transition_animation.complete:
+                self.world.process_input(event)
+                self.hud.process_input(event)
 
     def move_to_next_floor(self):
         player = self.world.player
@@ -27,13 +30,17 @@ class Main:
 
         self.world.player = player
         self.world.hud = self.hud
+        self.hud.world = self.world
 
+        self.level_transition_animation.start()
         print(f"Floor: {self.world.current_room_count - settings.INITIAL_ROOM_COUNT}")
 
     def draw(self):
         self.window.fill((0, 0, 0))
         self.world.draw()
         self.hud.draw()
+        if not self.level_transition_animation.complete:
+            self.level_transition_animation.draw(self.window)
 
     def update(self):
         dt = self.clock.tick(settings.FPS) / 100
@@ -41,10 +48,14 @@ class Main:
         if self.world.ready_to_move_to_next_floor:
             self.move_to_next_floor()
 
-        self.process_input()
-        self.world.update(dt)
         self.hud.update(dt)
         self.hud.current_fps = self.clock.get_fps()
+
+        self.process_input()
+        self.world.update(dt)
+
+        if not self.level_transition_animation.complete:
+            self.level_transition_animation.update(dt)
 
         pygame.display.update()
 
