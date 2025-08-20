@@ -41,6 +41,10 @@ class Sprites:
             Enums.CONSUMABLES.POTION: Potion,
             Enums.CONSUMABLES.NUT: Nut,
         }
+    class Menu:
+        START_MENU_BG = pygame.image.load("Assets/Menu/Start Menu BG.png")
+        NINJA_ADVENTURE_COVER_ART = pygame.image.load("Assets/Menu/NinjaAdventure CoverArt.png")
+        CONTROLS_HINT = pygame.image.load("Assets/Menu/Controls.png")
 
 class Stats_Info:
     Heroes = {

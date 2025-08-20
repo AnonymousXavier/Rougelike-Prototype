@@ -1,6 +1,8 @@
 import pygame
 from src.Misc import Misc
 
+GAME_NAME = "Ninja Descent"
+
 # SCREEN
 SCREEN_WIDTH = 900
 SCREEN_HEIGHT = SCREEN_WIDTH
@@ -68,6 +70,7 @@ class Color:
     LIGHT_YELLOW = (200, 200, 0)
     GREY = (125, 125, 125)
     BLACK = (0, 0, 0)
+    COVER_ART_BG = (13, 26, 26)
     
 
 # CAMERA
@@ -95,3 +98,4 @@ BUSH_SPAWN_CHANCE = 10
 CHEST_SPAWN_CHANCE = 5
 
 DESCRIPTION_MAX_WRAP_LENGHT = 20
+VERSION = 0.8
