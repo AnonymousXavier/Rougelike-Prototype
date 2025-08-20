@@ -6,6 +6,21 @@ import src.Globals.settings as settings
 
 pygame.display.set_caption("Roguelike - Prototype: Day 4")
 
+#TODO:
+# Core
+# -> Enemy Levels Increase with Floor Levels
+# -> Player Buff Upgrades (1 pt per upgrade - Health or Damage)
+    # Will be Included with Options Menu (Sound, Music, Quit and Version)
+    # Pressing Esc will bring up this menu
+# -> Add a main menu with
+    # Player Customizations - Name and Skin (Same Menu) then Play
+    # Credits screen with ninja Andventure Assets Pack Image
+
+# Quality
+# -> 2 More Enemies
+# -> 2 More Loot types
+# -> Make Consumables have Rarity for balancing Issues
+# -> Save and load feauture with XML
 
 class Main:
     def __init__(self):
@@ -37,8 +52,9 @@ class Main:
 
     def draw(self):
         self.window.fill((0, 0, 0))
-        self.world.draw()
-        self.hud.draw()
+        if self.level_transition_animation.finish_growing:
+            self.world.draw()
+            self.hud.draw()
         if not self.level_transition_animation.complete:
             self.level_transition_animation.draw(self.window)
 
@@ -63,6 +79,5 @@ class Main:
         while True:
             self.update()
             self.draw()
-
 
 Main().run()
