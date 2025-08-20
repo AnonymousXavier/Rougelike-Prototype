@@ -3,6 +3,7 @@ class World_Types:
     FLOOR = 1
     DOOR = 2
     BLANKS = 3 
+    STAIR = 4
     ALL = (WALL, FLOOR, DOOR, BLANKS)
 
 class SPRITE_INDEX:

@@ -49,6 +49,7 @@ class INVENTORY:
 # Misc
 FPS_INFO_SIZE = (32, 32)
 PLAYER_UI_SPACING = 1
+INITIAL_ROOM_COUNT = 3
 
 # COLORS
 VISITED_MARKER_COLOR = (0, 0, 100)
@@ -78,8 +79,10 @@ class Controls:
     RIGHT = pygame.K_RIGHT, pygame.K_d
     UP = pygame.K_UP, pygame.K_w
     DOWN = pygame.K_DOWN, pygame.K_s
+    WASTE_MOVE = pygame.K_SPACE, pygame.K_q
     INVENTORY = pygame.K_e
-    MOVEMENT = [key[i] for key in (LEFT, RIGHT, UP, DOWN) for i in range(2)]
+
+    MOVEMENT = [key[i] for key in (LEFT, RIGHT, UP, DOWN, WASTE_MOVE) for i in range(2)]
 
 class Font_Names:
     HUD = "Courier New"

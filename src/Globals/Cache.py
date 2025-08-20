@@ -15,6 +15,7 @@ class Sprites:
         floor = pygame.image.load("Assets/Tileset/floor.png")
         pathway = pygame.image.load("Assets/Tileset/pathway.png")
         blank = pygame.image.load("Assets/Tileset/blank.png")
+        stair = pygame.image.load("Assets/Tileset/stair.png")
     
     class Enemies:
         cyclops = SpriteSheet(pygame.image.load("Assets/Enemies/Cyclops.png"), (1, 4))

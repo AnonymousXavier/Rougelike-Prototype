@@ -19,17 +19,19 @@ from src.Misc.Camera import Camera
 from src.Misc import Misc
 
 class World:
-    def __init__(self):
+    def __init__(self, n=None):
         self.window = pygame.display.get_surface()
         self.hud = None
+        self.current_room_count = n or settings.INITIAL_ROOM_COUNT
 
-        self.world_generator = World_Generator(30)
+        self.world_generator = World_Generator(self.current_room_count)
         self.entities_map: list[list[None | Entities]] = []
         self.items_map: list[list[Interactable]] = []
 
         self.player = Player(0)
         self.camera = Camera()      
         self.finished_initializing = False
+        self.ready_to_move_to_next_floor = False
 
         self.is_a_movement_key_pressed = False
         self.last_key_pressed = 0
@@ -70,7 +72,7 @@ class World:
                     if by - t in (0, room.size - 1) or bx - l in (0, room.size - 1):
                         if random.randint(0, bush_unspawn_chance) != bush_unspawn_chance: 
                             continue
-                        if self.entities_map[by][bx]: 
+                        if self.entities_map[by][bx] or self.world_generator.grid[by][bx] != Enums.World_Types.FLOOR: 
                             continue
                         
                         bush = Bush()
@@ -169,6 +171,8 @@ class World:
                         sprite = Sprites.Tiles.pathway
                     case Enums.World_Types.BLANKS:
                         sprite = Sprites.Tiles.blank
+                    case Enums.World_Types.STAIR:
+                        sprite = Sprites.Tiles.stair
                 
                 draw_area.blit(sprite, rect)
 
@@ -277,8 +281,13 @@ class World:
 
         # Make Everyone attack
         self.process_attacks(temp_map)
-        
+
         px, py = self.player.pos
+        # Check if player is over a stair:
+        stair_x, stair_y = self.world_generator.stair_coords[1]
+        if px == stair_x and py == stair_y: 
+            self.ready_to_move_to_next_floor = True
+
         self.entities_map = temp_map
         self.entities_map[py][px] = self.player
 
@@ -327,6 +336,7 @@ class World:
                 self.finished_initializing = True
             if self.is_a_movement_key_pressed: 
                 self.update_game()
+
             self.update_camera(dt)
 
     def update_current_room(self):

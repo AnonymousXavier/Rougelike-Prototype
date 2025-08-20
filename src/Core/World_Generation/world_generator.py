@@ -20,6 +20,7 @@ class World_Generator:
         self.is_done_generating = False
         self.player_spawn_position = (0, 0)
         self.rooms: list[Room] = []
+        self.stair_coords = []
 
     def get_optimal_room_count(self, room_count):
         if room_count > settings.GRID_COLS * 2:
@@ -81,6 +82,31 @@ class World_Generator:
                 rect = pygame.Rect(x, y, settings.ROOM_CELL_WIDTH, settings.ROOM_CELL_HEIGHT)
                 pygame.draw.rect(surface, color, rect)
 
+    def upgrade_grid_with_stair(self):
+        start_room, end_room = self.rooms[0], self.rooms[len(self.rooms) - 1]
+        
+        x1, y1 = start_room.top_left
+        x2, y2 = end_room.top_left
+
+        stair1_x, stair1_y = x1 + random.randint(1, start_room.size - 1), y1 + random.randint(1, start_room.size- 1)
+        stair2_x, stair2_y = x2 + random.randint(1, end_room.size - 1), y2 + random.randint(1, end_room.size - 1)
+
+        self.grid[stair1_y][stair1_x] = World_Types.STAIR
+        self.grid[stair2_y][stair2_x] = World_Types.STAIR
+
+        self.stair_coords = [(stair1_x, stair1_y), (stair2_x, stair2_y)]
+
+    def translate_step_to_grid_pos(self, cell, direction, index):
+        offset = int(settings.DEFAULT_ROOM_SIZE / 2)
+        dx, dy = direction
+        mx, my = self.margin
+        sx, sy = self.start_step_point
+
+        r = (cell.r - sy) * settings.DEFAULT_ROOM_SIZE + dy * index + offset + mx
+        c = (cell.c - sx) * settings.DEFAULT_ROOM_SIZE + dx * index + offset + my
+
+        return c, r
+
     def update_grid_with_new_path(self):
         mx, my = self.margin
         prev_cell = self.drunkards_walk.taken_cells[0]
@@ -91,8 +117,7 @@ class World_Generator:
             dx, dy = cell.c - prev_cell.c, cell.r - prev_cell.r
             # Draw a straight line all the way to the next
             for i in range(settings.DEFAULT_ROOM_SIZE):
-                r = (prev_cell.r - sy) * settings.DEFAULT_ROOM_SIZE + dy * i + offset + mx
-                c = (prev_cell.c - sx) * settings.DEFAULT_ROOM_SIZE + dx * i + offset + my
+                c, r = self.translate_step_to_grid_pos(prev_cell, (dx, dy), i)
 
                 if step_index == 0:
                     if i == offset:
@@ -150,5 +175,6 @@ class World_Generator:
         self.update_grid_with_new_path()
         self.update_grid_with_rooms()
         self.update_grid_with_walls()
+        self.upgrade_grid_with_stair()
         self.is_done_generating = True
         

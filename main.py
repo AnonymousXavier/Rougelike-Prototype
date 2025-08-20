@@ -20,6 +20,16 @@ class Main:
             self.world.process_input(event)
             self.hud.process_input(event)
 
+    def move_to_next_floor(self):
+        player = self.world.player
+
+        self.world = World(self.world.current_room_count + 1)
+
+        self.world.player = player
+        self.world.hud = self.hud
+
+        print(f"Floor: {self.world.current_room_count - settings.INITIAL_ROOM_COUNT}")
+
     def draw(self):
         self.window.fill((0, 0, 0))
         self.world.draw()
@@ -27,6 +37,9 @@ class Main:
 
     def update(self):
         dt = self.clock.tick(settings.FPS) / 100
+
+        if self.world.ready_to_move_to_next_floor:
+            self.move_to_next_floor()
 
         self.process_input()
         self.world.update(dt)
