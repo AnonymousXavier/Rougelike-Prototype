@@ -1,4 +1,5 @@
 import pygame
+from src.UI.Player_stats_hud import Player_Stats_HUD
 from src.UI.Player_HUD import Player_HUD_Display
 from src.UI.enemy_info_display_component import Enemy_Info_Display_Component
 from src.UI.Inventory_Display import Inventory_Display
@@ -24,22 +25,32 @@ class HUD:
         self.can_display_inventory = False
         self.player_hud_display = Player_HUD_Display(self.world.player)
         self.inventory_display_hud = Inventory_Display(self.world.player)
+        self.player_stats_hud = Player_Stats_HUD(self.world.player)
 
         # Enemy HUD Components
         self.enemy_info_display_components: list[Enemy_Info_Display_Component] = []
 
-        # Bottom Left FPS
+        # Info Labels
         self.fps_label = Label("60", settings.FPS_INFO_SIZE)
+        self.fps_label.font_color = settings.Color.DARKER_GREY
+        self.enemies_in_floor_label = Label("Enemies: 0/0", settings.FPS_INFO_SIZE)
+        self.enemies_in_floor_label.font_color = settings.Color.DARKER_GREY
+
+        # Bottom Center Floor Count
+        self.floor_label = Label("FLOOR 0", settings.FPS_INFO_SIZE)
+        self.floor_label.font_color = self.fps_label.font_color
     
     def draw(self):
         self.surface = pygame.Surface(settings.SCREEN_SIZE, pygame.SRCALPHA)
         self.surface.set_alpha(self.alpha)
 
         self.player_hud_display.draw(self.surface)
-        self.draw_fps()
+        self.update_info_labels()
         self.draw_enemy_inrange_info()
 
         self.inventory_display_hud.draw(self.surface)
+        self.player_stats_hud.draw(self.surface)
+
         self.window.blit(self.surface)
 
     def draw_enemy_inrange_info(self):
@@ -62,7 +73,7 @@ class HUD:
         for enemy in self.world.get_attackable_enemies():
             enemy_info = Enemy_Info_Display_Component(settings.ENEMY_INFO_SIZE)
 
-            enemy_info.title_label.text = Misc.fill_text(16, enemy.name, f"LVL {enemy.level}")
+            enemy_info.title_label.text = Misc.fill_text(14, enemy.name, f"LVL {enemy.level}")
             enemy_info.health_bar.value = enemy.health
             enemy_info.health_bar.maxValue = enemy.max_health
             enemy_info.dmg_label.text = f"DMG: {enemy.damage}"
@@ -79,7 +90,7 @@ class HUD:
         for i, enemy_info in enumerate(self.enemy_info_display_components):
             enemy = attacking_enemies[i]
 
-            enemy_info.title_label.text = Misc.fill_text(16, enemy.name, f"LVL {enemy.level}")
+            enemy_info.title_label.text = Misc.fill_text(14, enemy.name, f"LVL {enemy.level}")
             enemy_info.health_bar.value = enemy.health
             enemy_info.health_bar.maxValue = enemy.max_health
 
@@ -91,12 +102,22 @@ class HUD:
         else: 
             self.update_enemy_inrange_info_with_new_ones(dt)
 
-    def draw_fps(self):
+    def update_info_labels(self):
         self.fps_label.text = str(round(self.current_fps))
-        self.fps_label.font_color = settings.Color.DARKER_GREY
         self.fps_label.update()
         self.fps_label.rect.bottomleft = (settings.SCREEN_MARGIN, settings.SCREEN_HEIGHT - settings.SCREEN_MARGIN)
+        
+        self.floor_label.text = f"FLOOR {self.world.floor}"
+        self.floor_label.update()
+        self.floor_label.rect.midbottom = settings.SCREEN_CENTER[0], self.fps_label.rect.bottom
+
+        self.enemies_in_floor_label.text = f"Enemies: {self.world.enemies_data.alive}/{self.world.enemies_data.total}"
+        self.enemies_in_floor_label.update()
+        self.enemies_in_floor_label.rect.topleft = self.fps_label.rect.left, self.player_hud_display.faceset_rect.bottom + settings.SCREEN_MARGIN
+
+        self.floor_label.draw(self.surface)
         self.fps_label.draw(self.surface)
+        self.enemies_in_floor_label.draw(self.surface)
 
     def update_draw_surface_alpha(self, dt: float):
         is_overlaping = (self.world.player.rect.top - 32) <= 0
@@ -113,10 +134,13 @@ class HUD:
             self.update_enemy_inrange_info(dt)
 
         self.inventory_display_hud.update(dt)
+        self.player_stats_hud.update()
 
     def process_input(self, event: pygame.Event):
         if event.type == pygame.KEYDOWN and event.key == settings.Controls.INVENTORY:
             self.inventory_display_hud.visible = not self.inventory_display_hud.visible
+            self.player_stats_hud.visible = not self.player_stats_hud.visible
         self.inventory_display_hud.process_input(event)
+        self.player_stats_hud.process_input(event)
 
         

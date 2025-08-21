@@ -21,6 +21,11 @@ class Entities(Sprite):
         self.sight_range = 5
         self.direction = (0, 0)
 
+    def update_stats(self):
+        self.max_health = self.max_health * self.level
+        self.damage = self.damage * self.level
+        self.health = self.max_health
+
     def update_direction(self, grid_map: list[list]):
         if self.target is None: 
             self.direction = random.choice(Enums.DIRECTIONS.ALL)

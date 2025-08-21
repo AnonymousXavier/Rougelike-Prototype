@@ -32,7 +32,7 @@ class Player_HUD_Display():
     def update(self, dt: float):
         self.name_and_score_label.text = Misc.fill_text(self.name_and_label_text_width, self.player.name, f"Lvl {self.player.level}")
         self.health_bar.value = self.player.health
-        self.health_bar.maxValue = self.player.max_health
+        self.health_bar.maxValue = self.player.get_max_health()
         self.xp_bar.value = self.player.xp
         self.xp_bar.maxValue = self.player.xp_goal
 

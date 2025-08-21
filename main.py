@@ -9,8 +9,8 @@ pygame.display.set_caption(f"{settings.GAME_NAME} v{settings.VERSION}")
 
 #TODO:
 # Core
-# -> Enemy Levels Increase with Floor Levels
-# -> Player Buff Upgrades (1 pt per upgrade - Health or Damage)
+# -> Enemy Levels Increase with Floor Levels -----------------------------------------DONE
+# -> Player Buff Upgrades (1 pt per upgrade - Health or Damage) ----------------------DONE
     # Will be Included with Options Menu (Sound, Music, Quit and Version)
     # Pressing Esc will bring up this menu
 # -> Add a main menu with
@@ -60,7 +60,6 @@ class Main:
         self.hud.world = self.world
 
         self.level_transition_animation.start()
-        print(f"Floor: {self.world.current_room_count - settings.INITIAL_ROOM_COUNT}")
         
     def draw_game(self):
         if self.level_transition_animation.finish_growing:
@@ -101,7 +100,6 @@ class Main:
                 self.menu.update()
 
         self.manage_states()
-        print(self.state)
         pygame.display.update()
 
     def manage_states(self):

@@ -30,12 +30,13 @@ class Inventory_Display:
 		self.title_label.centered = True
 		self.main_panel.has_border = True
 
-		self.main_panel.border_size = 0.002 * settings.SCREEN_WIDTH
+		self.main_panel.border_size = settings.PANEL_BORDER_SIZE
 
 		self.title_label.update()
 
 		# Position Components
-		self.main_panel.rect.center = settings.SCREEN_CENTER
+		self.main_panel.rect.center = settings.INVENTORY.MAIN_RECT_CENTER
+
 		self.inventory_display_container.rect.centerx = self.main_panel.rect.centerx
 		self.inventory_display_container.rect.centery = self.main_panel.rect.centery + actual_title_height / 2
 		self.title_label.rect.topleft = self.main_panel.rect.topleft

@@ -14,6 +14,7 @@ class Button(UI):
 		self.text_surface_rect = self.text_surface.get_rect()
 
 		self.pressed = False
+		self.stays_down = True
 
 	def get_hovered_color(self):
 		r, g, b = self.bg_color
@@ -28,12 +29,19 @@ class Button(UI):
 	def update(self):
 		self.text_surface_rect.center = self.rect.center
 
-		if not self.pressed:
+		if self.stays_down:
+			if not self.pressed:
+				self.pressed = pygame.mouse.get_pressed()[0] and self.is_hovered()
+		else:
 			self.pressed = pygame.mouse.get_pressed()[0] and self.is_hovered()
 
 	def is_hovered(self):
 		return self.rect.collidepoint(pygame.mouse.get_pos())
 
+	def clicked(self, event: pygame.Event):
+		if event.type == pygame.MOUSEBUTTONUP and self.is_hovered():
+			return True
+		return False
 
 	def draw(self, surface: pygame.Surface):
 		color = self.bg_color if not self.is_hovered() else self.hovered_color

@@ -1,4 +1,3 @@
-import re
 import pygame
 from src.UI.Button import Button
 from src.Globals import settings

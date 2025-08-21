@@ -26,6 +26,7 @@ class Inventory_Items_Container(UI):
 			inventory_item_display = Inventory_Item_Display(generic_item.get_image(), item_name, len(self.player.inventory.items[item_name]))
 
 			inventory_item_display.rect.top = i * h
+			inventory_item_display.rect.left = settings.SCREEN_MARGIN
 			items_lists.append(inventory_item_display)
 
 		for inventory_item_display in items_lists:
@@ -51,7 +52,7 @@ class Inventory_Items_Container(UI):
 
 	def create_description_label(self):
 		item_list = self.player.inventory.items[self.hovered_item_display.name_label.text]
-		font_size = int(self.hovered_item_display.icon_rect.height / 2.7)
+		font_size = int(self.hovered_item_display.icon_rect.height / 2.25)
 		item = item_list[0]
 
 		return Desciption_Label(item.description, font_size)

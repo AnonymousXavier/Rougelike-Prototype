@@ -14,14 +14,18 @@ class Player(Entities):
         super().__init__(spriteSheet.image, spriteSheet.get_frames()[0], stats)
 
         self.name = "Green Ninja"
-        self.health = 25
+
+        self.skill_points = 0
         self.max_health = self.health
+        self.bonus_health = 0
+        self.bonus_damage = 0
+
         self.xp = 0
-        self.xp_goal = 32
+        self.xp_goal = 8
         self.inventory = Inventory()
 
         self.general_upgrade_factor = 1.1
-        self.xp_upgrade_factor = 2
+        self.xp_upgrade_factor = 1.75
 
     def earn_xp_from(self, entity: Entities):
         self.xp += Misc.calculate_xp_gain_from_kill(entity, self)
@@ -32,9 +36,10 @@ class Player(Entities):
     def level_up(self):
         self.xp = abs(self.xp_goal - self.xp)
         self.level += 1
+        self.skill_points += settings.PLAYER_SKILL_POINTS_PER_UPGRADE
         self.xp_goal *= self.xp_upgrade_factor
         self.max_health *= self.general_upgrade_factor
-        self.health = self.max_health
+        self.health = self.get_max_health()
         self.damage *= self.general_upgrade_factor
 
     def interact_with_interactables(self, interactables_map: list[list]):
@@ -63,3 +68,17 @@ class Player(Entities):
 
         self.direction = dx, dy
         self.update_sprite()
+
+    def get_max_health(self):
+        return self.max_health * (1 + self.bonus_health)
+
+    def get_damage(self):
+        return self.damage * (1 + self.bonus_damage)
+
+    def increase_health_buff(self):
+        self.bonus_health += settings.PLAYER_BUFF_INCREASE_PERCENT
+        self.skill_points -= 1
+
+    def increase_damage_buff(self):
+        self.bonus_damage += settings.PLAYER_BUFF_INCREASE_PERCENT
+        self.skill_points -= 1

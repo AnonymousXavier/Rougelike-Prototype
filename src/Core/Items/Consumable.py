@@ -14,7 +14,7 @@ class Consumable(Item):
     def use(self, player):
         match self.id:
             case Enums.CONSUMABLES.POTION:
-                player.health = Misc.clamp(player.health + player.max_health * 0.1, 0, player.max_health)
+                player.health = Misc.clamp(player.health + player.get_max_health() * 0.1, 0, player.get_max_health())
             case Enums.CONSUMABLES.NUT:
-                player.health = Misc.clamp(player.health + 10, 0, player.max_health)
+                player.health = Misc.clamp(player.health + 10, 0, player.get_max_health())
             

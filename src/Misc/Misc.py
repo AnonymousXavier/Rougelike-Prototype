@@ -34,12 +34,12 @@ def get_vector_magnitude(vec):
     return (x ** 2 + y ** 2) ** 0.5
 
 def calculate_xp_gain_from_kill(enemy, player):
-    bonus_xp_per = 0.1 
+    bonus_xp_perc = 0.1 
     
     level_diff = enemy.level - player.level
     xp = enemy.max_health / enemy.level 
 
-    return xp + level_diff * xp * bonus_xp_per
+    return xp + level_diff * xp * bonus_xp_perc
 
 def create_sprite(size: tuple[float, float], sheet: pygame.Surface, frame: pygame.Rect):
     sprite = pygame.Surface(size, pygame.SRCALPHA)

@@ -18,15 +18,22 @@ from src.Core.Interactables.Bush import Bush
 from src.Misc.Camera import Camera
 from src.Misc import Misc
 
+class World_Enemies_Data:
+    def __init__(self) -> None:
+        self.alive = 0
+        self.total = 0
+    
 class World:
     def __init__(self, n=None):
         self.window = pygame.display.get_surface()
         self.hud = None
         self.current_room_count = n or settings.INITIAL_ROOM_COUNT
+        self.floor = self.current_room_count - settings.INITIAL_ROOM_COUNT
 
-        self.world_generator = World_Generator(self.current_room_count)
+        self.world_generator = World_Generator(min(settings.MAX_GENERATABLE_ROOMS_COUNT, self.current_room_count))
         self.entities_map: list[list[None | Entities]] = []
         self.items_map: list[list[Interactable]] = []
+        self.enemies_data = World_Enemies_Data()
 
         self.player = Player(0)
         self.camera = Camera()      
@@ -118,8 +125,13 @@ class World:
                 if cell == Enums.World_Types.FLOOR: 
                     n = random.randint(0, settings.ENEMY_SPAWN_CHANCE)
                     if n == settings.ENEMY_SPAWN_CHANCE:
+                        floor = self.floor
                         enemy = Enemy(Enums.ENEMIES.CYCLOPS)
+                        if floor > 0:
+                            enemy.level = random.randint(max(1, int(floor / 2)), floor + 1)
+                            enemy.update_stats()
                         enemy.pos = (j, i)
+                        self.enemies_data.total += 1
                         enemy.room_id = self.get_room_index_of(enemy.pos)
                         row.append(enemy)
 
@@ -222,7 +234,7 @@ class World:
             enemy_attack_target = enemy.get_next_path_pos()
 
             if player_attack_target == enemy.pos:
-                enemy.hurt_by(self.player.damage)
+                enemy.hurt_by(self.player.get_damage())
 
             if not enemy.is_dead():
                 if enemy_attack_target == self.player.pos: 
@@ -262,11 +274,13 @@ class World:
             temp_map[y][x] = self.player
 
         # Move Everyone eLse
+        self.enemies_data.alive = 0
         for grid_y, row in enumerate(self.entities_map):
             for grid_x, entity in enumerate(row):
                 if entity:
                     # Handle PathFinding
                     if entity is not self.player:
+                        self.enemies_data.alive += 1
                         entity.target = None
                         if (entity.room_id == self.player.room_id and entity.can_see(self.player.pos)) or entity.can_see(self.player.pos):
                             entity.target = self.player.pos
