@@ -31,7 +31,9 @@ class ITEM_TYPES:
 class CONSUMABLES:
     POTION = 0
     NUT = 1
-    ALL = (POTION, NUT)
+    CALAMARI = 2
+    BEEF = 3
+    ALL = (POTION, NUT, CALAMARI, BEEF)
 
 class ENEMIES:
     CYCLOPS = 0

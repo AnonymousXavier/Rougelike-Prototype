@@ -9,6 +9,7 @@ class Interactable(Sprite):
         self.rarity = Enums.RARITY.COMMON
         self.can_walk_over = False
         self.content = []
+        self.xp_worth = 0
 
     def interact(self, player):
         self.state = Enums.INTERACTABLES_STATES.OPEN

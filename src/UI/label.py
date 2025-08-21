@@ -10,7 +10,7 @@ class Label(UI):
         super().__init__(size, bold=bold)
 
         self.text = text
-        self.text_surface: pygame.Surface = pygame.Surface((10, 10))
+        self.text_surface: pygame.Surface = pygame.Surface((1, 1))
         self.capitalize = True
         self.centered = False
 

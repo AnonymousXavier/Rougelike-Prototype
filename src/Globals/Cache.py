@@ -37,9 +37,13 @@ class Sprites:
     class Consumables:
         Potion = pygame.image.load("Assets/Items/HealthPotion.png")
         Nut = pygame.image.load("Assets/Items/Nut.png")
+        Calamri = pygame.image.load("Assets/Items/Calamari.png")
+        Beef = pygame.image.load("Assets/Items/Beaf.png")
         ALL = {
             Enums.CONSUMABLES.POTION: Potion,
             Enums.CONSUMABLES.NUT: Nut,
+            Enums.CONSUMABLES.CALAMARI: Calamri,
+            Enums.CONSUMABLES.BEEF: Beef
         }
     class Menu:
         START_MENU_BG = pygame.image.load("Assets/Menu/Start Menu BG.png")
@@ -55,7 +59,15 @@ class Stats_Info:
     }
     Consumables = {
         Enums.CONSUMABLES.POTION: Stats.ALL_STATS.POTION,
-        Enums.CONSUMABLES.NUT: Stats.ALL_STATS.NUT
+        Enums.CONSUMABLES.NUT: Stats.ALL_STATS.NUT,
+        Enums.CONSUMABLES.CALAMARI: Stats.ALL_STATS.CALAMARI,
+        Enums.CONSUMABLES.BEEF: Stats.ALL_STATS.BEEF
     }
 
-
+class Consumable_Buff: 
+    def __init__(self, _id: int, duration: int) -> None:
+        self.id = _id
+        self.duration = duration
+    
+    def update(self):
+        self.duration -= 1

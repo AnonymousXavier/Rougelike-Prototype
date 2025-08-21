@@ -17,6 +17,7 @@ from src.Core.Interactables.Bush import Bush
 
 from src.Misc.Camera import Camera
 from src.Misc import Misc
+from src.Misc import Save_Data
 
 class World_Enemies_Data:
     def __init__(self) -> None:
@@ -83,6 +84,7 @@ class World:
                             continue
                         
                         bush = Bush()
+                        bush.xp_worth = self.floor + 1
                         bush.pos = (bx, by)
                         items_map[by][bx] = bush
 
@@ -98,6 +100,7 @@ class World:
 
                 if len(options) > 0: 
                     chest = Chest()
+                    chest.xp_worth = (self.floor + 1) * 2
                     chest.pos = x, y
                     items_map[y][x] = chest
 
@@ -272,6 +275,7 @@ class World:
             x, y = self.player.move(self.get_collisions_grid(temp_map))
             temp_map[py][px] = None
             temp_map[y][x] = self.player
+        self.player.update([])
 
         # Move Everyone eLse
         self.enemies_data.alive = 0
@@ -341,6 +345,7 @@ class World:
         self.camera.update(dt)
 
     def update(self, dt: float):
+        Save_Data.update(self)
         if not self.world_generator.is_done_generating: 
             self.world_generator.update(dt)
         else:
@@ -356,10 +361,13 @@ class World:
     def update_current_room(self):
         self.player.room_id = self.get_room_index_of(self.player.pos)
 
+    def should_update_game(self):
+        return self.frames_holding_key % self.game_update_delay == 0
+
     def update_game(self):
         if self.hud.inventory_display_hud.visible:
             return
-        if self.frames_holding_key % self.game_update_delay == 0:
+        if self.should_update_game():
             self.player.process_input(self.last_key_pressed)
             self.update_current_room()
             self.update_map()

@@ -1,17 +1,17 @@
 import random
 import pygame
+import time
 from src.Misc.Room import Room
 from src.Globals.Enums import World_Types
 from src.Globals import settings
 from src.Core.World_Generation.drunkards_walk import Drunkards_Walk
 
-random.seed(6)
-
 class World_Generator:
     def __init__(self, rooms):
         self.number_of_rooms = self.get_optimal_room_count(rooms)
         print("Generated: ", self.number_of_rooms, " Rooms")
-
+        self.seed = int(time.time())
+        random.seed(self.seed)
         self.drunkards_walk = Drunkards_Walk(rooms)
         self.grid: list[list[int]] = []
         self.start_step_point = (0, 0)

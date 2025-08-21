@@ -7,5 +7,6 @@ class Item(Sprite):
         super().__init__(sheet, frames)
 
         self.name = item_stat_info.name
+        self.effect_duration = item_stat_info.effect_duration
         self.description = item_stat_info.description
 

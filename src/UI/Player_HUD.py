@@ -15,7 +15,7 @@ class Player_HUD_Display():
         self.xp_bar = Progress_Bar(self.player.xp_goal, ((settings.PLAYER_XP_BAR_WIDTH - settings.SCREEN_MARGIN, settings.PLAYER_XP_BAR_HEIGHT)))
         self.faceset = Cache.Sprites.Facesets.Green_Ninja
         self.name_and_score_label = Label("", (settings.PLAYER_NAME_AND_LEVEL_LABEL_WIDTH, settings.PLAYER_NAME_AND_LEVEL_LABEL_HEIGHT))
-        self.hud_panel = Panel((10, 10))
+        self.hud_panel = Panel((1, 1))
         self.faceset_rect = pygame.Rect()
         self.name_and_label_text_width = 19
 

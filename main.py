@@ -1,9 +1,11 @@
 import pygame
+import sys
 from src.Misc.level_transition import Level_Transition
 from src.Core.HUD import HUD
 from src.Core.Menu.menu import Menu
 from src.Core.World import World
 import src.Globals.settings as settings
+import src.Misc.xml_func as xml
 
 pygame.display.set_caption(f"{settings.GAME_NAME} v{settings.VERSION}")
 
@@ -36,7 +38,8 @@ class Main:
         self.world = World()
         self.hud = HUD(self.world)
 
-        self.menu = Menu()
+        self.load_game()
+        self.menu = Menu(self.world)
         self.level_transition_animation = Level_Transition()
         self.state = State.START
 
@@ -65,8 +68,6 @@ class Main:
         if self.level_transition_animation.finish_growing:
             self.world.draw()
             self.hud.draw()
-        if not self.level_transition_animation.complete:
-            self.level_transition_animation.draw(self.window)
 
     def update_game(self, dt):
 
@@ -79,15 +80,28 @@ class Main:
         self.process_input()
         self.world.update(dt)
 
+    def update_transition(self, dt: float):
         if not self.level_transition_animation.complete:
             self.level_transition_animation.update(dt)
+
+    def draw_transition(self):
+        if not self.level_transition_animation.complete:
+            self.level_transition_animation.draw(self.window)
 
     def process_input(self):
         for event in pygame.event.get():
             if event.type is pygame.QUIT:
-                quit()
+                xml.save(settings.PATH)
+                sys.exit()
 
             self.manage_input_processing(event)
+
+    def load_game(self):
+        print(xml.load(settings.PATH))
+        if xml.load(settings.PATH):
+            xml.update(xml.load(settings.PATH))
+        else:
+            xml.save(settings.PATH)
 
     def update(self):
         dt = self.clock.tick(settings.FPS) / 100
@@ -96,8 +110,11 @@ class Main:
         match self.state:
             case State.GAME:
                 self.update_game(dt)
+                self.update_transition(dt)
             case State.START:
                 self.menu.update()
+            case State.GAME_OVER:
+                self.update_transition(dt)
 
         self.manage_states()
         pygame.display.update()
@@ -105,10 +122,13 @@ class Main:
     def manage_states(self):
         match self.state:
             case State.GAME:
-                pass
+                if self.world.player.health < 0:
+                    self.state = State.GAME_OVER
+                    self.level_transition_animation.start()
             case State.START:
                 if self.menu.start_game:
                     self.state = State.GAME
+
 
     def draw(self):
         self.window.fill((0, 0, 0))
@@ -116,8 +136,14 @@ class Main:
         match self.state:
             case State.GAME:
                 self.draw_game()
+                self.draw_transition()
             case State.START:
                 self.menu.draw_start_screen(self.window)
+            case State.GAME_OVER:
+                if self.level_transition_animation.finish_growing:
+                    self.menu.draw_end_menu(self.window)
+                self.draw_transition()
+
 
     def run(self):
         while True:

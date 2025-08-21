@@ -18,7 +18,7 @@ class Enemy_Info_Display_Component(UI):
         self.panel = Panel(size)
         self.title_label = Label("", self.section_size)
         
-        self.dmg_label = Label("DMG: 10", self.section_size, False)
+        self.dmg_label = Label("DMG: 1", self.section_size, False)
         
         self.health_bar = Progress_Bar(1, self.section_size)
         self.surface = pygame.Surface(size, pygame.SRCALPHA)

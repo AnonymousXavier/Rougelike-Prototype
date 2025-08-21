@@ -1,4 +1,5 @@
 import pygame
+from src.UI.Active_Buffs_HUD import Active_Buff_HUD_Display
 from src.UI.Player_stats_hud import Player_Stats_HUD
 from src.UI.Player_HUD import Player_HUD_Display
 from src.UI.enemy_info_display_component import Enemy_Info_Display_Component
@@ -26,6 +27,7 @@ class HUD:
         self.player_hud_display = Player_HUD_Display(self.world.player)
         self.inventory_display_hud = Inventory_Display(self.world.player)
         self.player_stats_hud = Player_Stats_HUD(self.world.player)
+        self.player_active_buff_display = Active_Buff_HUD_Display(self.world.player)
 
         # Enemy HUD Components
         self.enemy_info_display_components: list[Enemy_Info_Display_Component] = []
@@ -50,12 +52,14 @@ class HUD:
 
         self.inventory_display_hud.draw(self.surface)
         self.player_stats_hud.draw(self.surface)
+        self.player_active_buff_display.draw(self.surface)
 
         self.window.blit(self.surface)
 
     def draw_enemy_inrange_info(self):
         for enemy_info in self.enemy_info_display_components:
             enemy_info.draw(self.surface)
+
 
     def update_enemy_inrange_info_with_new_ones(self, dt: float):
         self.enemy_info_display_components = []
@@ -135,6 +139,8 @@ class HUD:
 
         self.inventory_display_hud.update(dt)
         self.player_stats_hud.update()
+        if self.world.should_update_game():
+            self.player_active_buff_display.update()
 
     def process_input(self, event: pygame.Event):
         if event.type == pygame.KEYDOWN and event.key == settings.Controls.INVENTORY:
