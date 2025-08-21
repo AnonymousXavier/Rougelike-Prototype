@@ -32,9 +32,9 @@ class Player_Profile_Card:
 		self.bg_image_rect.center = settings.SCREEN_CENTER
 		self.faceset_rect.midtop = self.bg_image_rect.centerx, self.bg_image_rect.top + settings.SCREEN_MARGIN
 
-		self.level_label = Label(f"Level: {SaveData.level}", label_size)
-		self.health_label = Label(f"Health: {SaveData.health}", label_size)
-		self.damage_label = Label(f"Damage: {SaveData.damage}", label_size)
+		self.level_label = Label(f"Level: {round(SaveData.level)}", label_size)
+		self.health_label = Label(f"Health: {round(SaveData.health)}", label_size)
+		self.damage_label = Label(f"Damage: {round(SaveData.damage)}", label_size)
 		self.kills_label = Label(f"Kills: {SaveData.kills}", label_size)
 		self.floors_label = Label(f"You Survived till Floor {SaveData.floor}", footer_size)
 
