@@ -15,9 +15,11 @@ class ALL_STATS:
 	GREEN_NINJA = Entity_Stat("Green Ninja", 25, 2)
 	# Enemies
 	CYCLOPS = Entity_Stat("Cyclops", 3, 1)
+	GREEN_CYCLOPS = Entity_Stat("Cyclops", 2, 2)
+	BAMBOO = Entity_Stat("Bamboo", 3, 1)
 	# Consumables
 	POTION = Item_Stat("Potion", "Heals 20% of health")
-	NUT = Item_Stat("Nut", "Heals by 1 health points")
+	NUT = Item_Stat("Nut", "Heals by 10 health points")
 	CALAMARI = Item_Stat("Calamari", "Doubles Damage for 25 turns", 25)
 	BEEF = Item_Stat("Beef", "Doubles Health for 25 turns", 25)
 

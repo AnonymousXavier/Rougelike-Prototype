@@ -115,9 +115,9 @@ class World:
                     n = random.randint(0, settings.ENEMY_SPAWN_CHANCE)
                     if n == settings.ENEMY_SPAWN_CHANCE:
                         floor = self.floor
-                        enemy = Enemy(Enums.ENEMIES.CYCLOPS)
+                        enemy = Enemy(random.choice(Enums.ENEMIES.ALL))
                         if floor > 0:
-                            enemy.level = random.randint(max(1, int(floor / 2)), floor + 1)
+                            enemy.level = random.randint(max(1, int(floor / 2)), floor + int(self.player.level / 2))
                             enemy.update_stats()
                         enemy.spawn_pos = (j, i)
                         enemy.pos = (j, i)
@@ -178,6 +178,30 @@ class World:
     def update_camera(self, dt: float):
         self.camera.target = self.get_screen_sector_center()
         self.camera.update(dt)
+
+    def process_attacks(self, temp_map: list[list]):
+        dead_enemies_pos = []
+        enemies_in_range: list[Entities] = self.get_entities_around(self.player.pos, temp_map)
+
+        # Enemies Attack Player and vice versa
+        player_attack_target = self.player.get_next_path_pos()
+        
+        for enemy in enemies_in_range:
+            enemy_attack_target = enemy.get_next_path_pos()
+
+            if player_attack_target == enemy.pos:
+                enemy.hurt_by(self.player.get_damage())
+
+            if not enemy.is_dead():
+                if enemy_attack_target == self.player.pos: 
+                    self.player.hurt_by(enemy.damage)
+            else: 
+                dead_enemies_pos.append((enemy.pos))
+
+        # Remove dead enemies
+        for (x, y) in dead_enemies_pos:
+            self.player.earn_xp_from(temp_map[y][x])
+            temp_map[y][x] = None
 
     def update_current_room(self):
         self.player.room_id = self.get_room_index_of(self.player.pos)
@@ -318,30 +342,6 @@ class World:
 
         return enemies_in_range
 
-    def process_attacks(self, temp_map: list[list]):
-        dead_enemies_pos = []
-        enemies_in_range: list[Entities] = self.get_entities_around(self.player.pos, temp_map)
-
-        # Enemies Attack Player and vice versa
-        player_attack_target = self.player.get_next_path_pos()
-        
-        for enemy in enemies_in_range:
-            enemy_attack_target = enemy.get_next_path_pos()
-
-            if player_attack_target == enemy.pos:
-                enemy.hurt_by(self.player.get_damage())
-
-            if not enemy.is_dead():
-                if enemy_attack_target == self.player.pos: 
-                    self.player.hurt_by(enemy.damage)
-            else: 
-                dead_enemies_pos.append((enemy.pos))
-
-        # Remove dead enemies
-        for (x, y) in dead_enemies_pos:
-            self.player.earn_xp_from(temp_map[y][x])
-            temp_map[y][x] = None
-
     def draw_entities_with_tween(self):
         for entity in self.drawn_entities:
             entity.tween_movement()
@@ -405,13 +405,13 @@ class World:
         # Divide the Screen into sectors, each about the size of the camera's view
         # Move the Camera to this center each time the player gets outta bounds
 
-        sector_scale = 2.25 # Scale of sector to camera's view
+        sector_scale = 2 # Scale of sector to camera's view
         camera_rect = self.get_camera_rect()
         w, h = camera_rect.right - camera_rect.left, camera_rect.bottom - camera_rect.top
         sw, sh = w / sector_scale, h / sector_scale
         
         px, py = self.player.pos
-        sx, sy = round(px / sw), round(py / sh) # Sector Coordinates of Player
+        sx, sy = int(px / sw), int(py / sh) # Sector Coordinates of Player
 
         tx, ty = sx * sw , sy * sh # Top left position
         cx, cy = tx + sw / 2, ty + sh / 2
@@ -435,4 +435,4 @@ class World:
                     print("Entity Found At: ", j, i, cell)
                     entities_count += 1
 
-        return entities_count              
+        return entities_count  

@@ -3,6 +3,30 @@ from src.Globals import Enums
 from src.Globals import Stats
 import pygame
 
+pygame.mixer.init(frequency=44100, size=-16, channels=3, buffer=1024)
+
+class Audio:
+    class Music_Path:
+        GAME_1 = "Audio/Game Music.ogg"
+        GAME_2 = "Audio/Game Music 2.ogg"
+        GAME_OVER = "Audio/Game Over.ogg"
+        GAME_OVER_2 = "Audio/Game Over 2.ogg"
+        START_1 = "Audio/Start Music.ogg"
+        START_2 = "Audio/Start Music 2.ogg"
+        START_3 = "Audio/Start Music 3.ogg"
+
+        GAME = (GAME_1, GAME_2)
+        START = (START_1, START_2, START_3)
+        END = (GAME_OVER, GAME_OVER_2)
+
+    class Sound:
+        XP = pygame.mixer.Sound("Audio/Level Up.wav")
+        GAME_OVER = pygame.mixer.Sound("Audio/GameOver.wav")
+        NEXT_FLOOR = pygame.mixer.Sound("Audio/Next Floor.wav")
+        ITEM = pygame.mixer.Sound("Audio/Use Item.wav")
+        LEVEL_UP = pygame.mixer.Sound("Audio/XP.wav")
+        START_GAME = pygame.mixer.Sound("Audio/Start Game.wav")
+
 class Sprites:
     class Heroes:
         Green_Ninja = SpriteSheet(pygame.image.load("Assets/Player/Green Ninja.png"), (1, 4))
@@ -19,9 +43,13 @@ class Sprites:
     
     class Enemies:
         cyclops = SpriteSheet(pygame.image.load("Assets/Enemies/Cyclops.png"), (1, 4))
+        Green_Cyclops = SpriteSheet(pygame.image.load("Assets/Enemies/Cyclops2.png"), (1, 4))
+        Bamboo = SpriteSheet(pygame.image.load("Assets/Enemies/bamboo.png"), (1, 4))
 
         ALL = {
-            Enums.ENEMIES.CYCLOPS: cyclops
+            Enums.ENEMIES.CYCLOPS: cyclops,
+            Enums.ENEMIES.BAMBOO: Bamboo,
+            Enums.ENEMIES.GREEN_CYCLOPS: Green_Cyclops
         }
 
     class Facesets:
@@ -55,7 +83,9 @@ class Stats_Info:
         Enums.HEROES.GREEN_NINJA: Stats.ALL_STATS.GREEN_NINJA
     }
     Enemies = {
-        Enums.ENEMIES.CYCLOPS: Stats.ALL_STATS.CYCLOPS
+        Enums.ENEMIES.CYCLOPS: Stats.ALL_STATS.CYCLOPS,
+        Enums.ENEMIES.BAMBOO: Stats.ALL_STATS.BAMBOO,
+        Enums.ENEMIES.GREEN_CYCLOPS: Stats.ALL_STATS.GREEN_CYCLOPS
     }
     Consumables = {
         Enums.CONSUMABLES.POTION: Stats.ALL_STATS.POTION,

@@ -40,6 +40,7 @@ class Player(Entities):
         self.xp += Misc.calculate_xp_gain_from_kill(entity, self)
         self.level_up_if_can()
         self.kills += 1
+        Cache.Audio.Sound.XP.play()
         
     def level_up_if_can(self):
         diff = self.xp_goal - self.xp
@@ -54,6 +55,7 @@ class Player(Entities):
         self.max_health *= self.general_upgrade_factor
         self.health = self.get_max_health()
         self.damage *= self.general_upgrade_factor
+        Cache.Audio.Sound.LEVEL_UP.play()
 
     def interact_with_interactables(self, interactables_map: list[list]):
         px, py = self.pos

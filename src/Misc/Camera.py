@@ -21,10 +21,10 @@ class Camera:
 
         half_viewport_width, half_viewport_height = self.camera_grid_view_width / 2, self.camera_grid_view_height / 2
 
-        camera_top = clamp(round(cy - half_viewport_height), 0, grid_height)
-        camera_bottom = clamp(round(cy + half_viewport_height), 0, grid_height)
-        camera_left = clamp(round(cx - half_viewport_width), 0, grid_width)
-        camera_right = clamp(round(cx + half_viewport_width), 0, grid_width)
+        camera_top = clamp(int(cy - half_viewport_height), 0, grid_height)
+        camera_bottom = clamp(int(cy + half_viewport_height), 0, grid_height)
+        camera_left = clamp(int(cx - half_viewport_width), 0, grid_width)
+        camera_right = clamp(int(cx + half_viewport_width), 0, grid_width)
 
         if camera_left == 0: 
             camera_right = camera_left + self.camera_grid_view_width

@@ -17,9 +17,10 @@ class Consumable(Item):
             case Enums.CONSUMABLES.POTION:
                 player.health = Misc.clamp(player.health + player.get_max_health() * 0.2, 0, player.get_max_health())
             case Enums.CONSUMABLES.NUT:
-                player.health = Misc.clamp(player.health + 1, 0, player.get_max_health())
+                player.health = Misc.clamp(player.health + 10, 0, player.get_max_health())
             case Enums.CONSUMABLES.BEEF | Enums.CONSUMABLES.CALAMARI:
                 calamari_buff = Cache.Consumable_Buff(self.id, self.effect_duration)
                 player.passive_buffs.append(calamari_buff)
+        Cache.Audio.Sound.ITEM.play()
 
             

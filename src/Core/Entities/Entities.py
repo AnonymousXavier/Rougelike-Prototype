@@ -25,7 +25,7 @@ class Entities(Sprite):
 
         self.sight_range = 5
         self.direction = (0, 0)
-        self.speed = 8
+        self.speed = 12
 
     def update_stats(self):
         self.max_health = self.max_health * self.level
@@ -131,17 +131,28 @@ class Entities(Sprite):
     def tween_movement(self):
         if self.tween_rect.width == 0:
             sx, sy = self.spawn_pos
-            self.tween_rect = pygame.Rect(sx * settings.ROOM_CELL_WIDTH, sy * settings.ROOM_CELL_HEIGHT, self.rect.width, self.rect.height)
+            self.tween_rect = pygame.Rect(
+                sx * settings.ROOM_CELL_WIDTH,
+                sy * settings.ROOM_CELL_HEIGHT,
+                self.rect.width,
+                self.rect.height
+            )
 
         dt = settings.DT
         tx, ty = self.tween_rect.center
         wx, wy = self.drawn_rect_on_world.center
 
         dx, dy = wx - tx, wy - ty
-
+        
+        # Base increment
         inc = self.speed * dt
-        tx += min(abs(dx), inc) * Misc.sign(dx)
-        ty += min(abs(dy), inc) * Misc.sign(dy)
+
+        # Distance multiplier (smooth ease-in)
+        ease_factor = Misc.get_vector_magnitude((dx, dy)) * 0.2
+        ease_factor = max(0.1, ease_factor)
+
+        tx += min(abs(dx), inc * ease_factor) * Misc.sign(dx)
+        ty += min(abs(dy), inc * ease_factor) * Misc.sign(dy)
 
         self.tween_rect.center = (tx, ty)
 
