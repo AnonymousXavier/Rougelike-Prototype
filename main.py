@@ -134,12 +134,7 @@ class Main:
             self.manage_input_processing(event)
 
     def load_game(self):
-        print(xml.load(settings.PATH))
-        if xml.load(settings.PATH):
-            xml.update(xml.load(settings.PATH))
-        else:
-            Save_Data.reset()
-            xml.save(settings.PATH)
+        xml.update(xml.load(settings.PATH))
 
     def update(self):
         dt = self.clock.tick(settings.FPS) / 150

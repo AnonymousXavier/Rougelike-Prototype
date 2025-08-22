@@ -1,8 +1,15 @@
+import os
 import xml.etree.ElementTree as ET
 from src.Globals import settings
-from src.Misc.Save_Data import SaveData, display_data
+from src.Misc.Save_Data import SaveData, reset
 
 def load(path: str):
+    if not os.path.exists(path):
+        # Create a default save if it doesn't exist
+        reset() # Reset Save Data
+        save(path)
+        print(f"No save found. Created default save at {path}")
+
     try:
         tree = ET.parse(path)
         root = tree.getroot()
@@ -11,8 +18,8 @@ def load(path: str):
             return "Error: File format isn't supported"
         return root
 
-    except FileNotFoundError:
-        return f"Error: No such file or Directory: {path}"
+    except ET.ParseError:
+        return "Error: Failed to parse save file"
     
 def update(root: ET.Element):
     for child in root:
@@ -22,8 +29,6 @@ def update(root: ET.Element):
             SaveData.floor = int(child.find("floor").text) or 0   
             SaveData.health = int(child.find("health").text) or 0   
             SaveData.kills = int(child.find("kills").text) or 0 
-            print("Updated") 
-            display_data() 
 
 def save(path: str):
     root = ET.Element(settings.ROOT_NAME)
@@ -36,8 +41,6 @@ def save(path: str):
     ET.SubElement(child, "damage").text = str(int(SaveData.damage))
     ET.SubElement(child, "seed").text = str(int(SaveData.seed))
 
-    print("Saved") 
-    display_data() 
 
     tree = ET.ElementTree(root)
     tree.write(path, xml_declaration=True)
