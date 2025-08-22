@@ -29,11 +29,11 @@ def save(path: str):
     root = ET.Element(settings.ROOT_NAME)
     
     child = ET.SubElement(root, settings.PLAYER_DATA_ROOT_NAME)
-    ET.SubElement(child, "kills").text = str(SaveData.kills)
-    ET.SubElement(child, "level").text = str(SaveData.level)
-    ET.SubElement(child, "floor").text = str(SaveData.floor)
-    ET.SubElement(child, "health").text = str(SaveData.health)
-    ET.SubElement(child, "damage").text = str(SaveData.damage)
+    ET.SubElement(child, "kills").text = str(int(SaveData.kills))
+    ET.SubElement(child, "level").text = str(int(SaveData.level))
+    ET.SubElement(child, "floor").text = str(int(SaveData.floor))
+    ET.SubElement(child, "health").text = str(int(SaveData.health))
+    ET.SubElement(child, "damage").text = str(int(SaveData.damage))
     ET.SubElement(child, "seed").text = str(int(SaveData.seed))
 
     print("Saved") 

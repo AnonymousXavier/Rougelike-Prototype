@@ -1,12 +1,13 @@
 import pygame
 from src.Misc.UI import UI
+from src.Globals import settings
 
 
 class Label(UI):
     def __init__(self, text: str, size: tuple[float, float], bold=True):
         width, _ = size
         self.size = size
-        self.font_size = width * 0.7
+        self.font_size = width * 1.4 * settings.ZOOM
         super().__init__(size, bold=bold)
 
         self.text = text

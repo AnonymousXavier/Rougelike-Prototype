@@ -1,5 +1,6 @@
 import pygame
 import sys
+from src.Misc import Save_Data
 from src.Misc.level_transition import Level_Transition
 from src.Core.HUD import HUD
 from src.Core.Menu.menu import Menu
@@ -33,7 +34,7 @@ class State:
 
 class Main:
     def __init__(self):
-        self.window = pygame.display.set_mode(settings.SCREEN_SIZE)
+        self.window = pygame.display.set_mode(settings.SCREEN_SIZE, pygame.RESIZABLE)
         self.clock = pygame.Clock()
         self.world = World()
         self.hud = HUD(self.world)
@@ -93,6 +94,18 @@ class Main:
             if event.type is pygame.QUIT:
                 xml.save(settings.PATH)
                 sys.exit()
+            if event.type == pygame.VIDEORESIZE:
+                if self.state != State.GAME:
+                    settings.SCREEN_WIDTH = event.w
+                    settings.SCREEN_HEIGHT = event.h
+
+                    settings.update_constants()
+                    self.world = World()
+                    self.hud = HUD(self.world)
+                    self.menu = Menu(self.world)
+                else:
+
+                    pygame.display.set_mode(settings.SCREEN_SIZE)
 
             self.manage_input_processing(event)
 
@@ -101,9 +114,11 @@ class Main:
         if xml.load(settings.PATH):
             xml.update(xml.load(settings.PATH))
         else:
+            Save_Data.reset()
             xml.save(settings.PATH)
 
     def update(self):
+
         dt = self.clock.tick(settings.FPS) / 100
         self.process_input()
 

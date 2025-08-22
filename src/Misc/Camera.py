@@ -12,13 +12,12 @@ class Camera:
         
 
     def get_rect(self, grid_width, grid_height):
-        
         clamp = Misc.clamp
 
         cx, cy = self.grid_pos # Camera Center
 
-        self.camera_grid_view_height = int(settings.SCREEN_WIDTH / (settings.ZOOM * settings.DEFAULT_ROOM_SIZE)) - 1
-        self.camera_grid_view_width = int(settings.SCREEN_HEIGHT / (settings.ZOOM * settings.DEFAULT_ROOM_SIZE)) - 1
+        self.camera_grid_view_height = int(settings.SCREEN_HEIGHT / (settings.ZOOM * settings.DEFAULT_ROOM_SIZE)) - 1
+        self.camera_grid_view_width = int(settings.SCREEN_WIDTH / (settings.ZOOM * settings.DEFAULT_ROOM_SIZE)) - 1
 
         half_viewport_width, half_viewport_height = self.camera_grid_view_width / 2, self.camera_grid_view_height / 2
 

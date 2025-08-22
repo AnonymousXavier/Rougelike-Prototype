@@ -86,3 +86,4 @@ def wrap_text(text: str, max_line_lenght: int):
 
 def get_font(name: str, font_size: int, is_bold=False, is_italic=False) -> pygame.Font:
     return pygame.font.SysFont(name, font_size, is_bold, is_italic)
+

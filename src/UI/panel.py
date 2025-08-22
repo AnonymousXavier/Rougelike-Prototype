@@ -1,11 +1,12 @@
 import pygame
+from src.Globals import settings
 from src.Misc.UI import UI
 
 
 class Panel(UI):
     def __init__(self, size: tuple[float, float]):
         super().__init__(size)
-        self.border_size = size[1] * 0.01
+        self.border_size = size[1] * 0.02 * settings.ZOOM
         self.border_radius = 5
         self.has_border = False
 

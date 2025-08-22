@@ -1,5 +1,4 @@
 import pygame
-from src.Core.Items.Consumable import Consumable
 from src.Core.Entities.Player import Player
 from src.Globals import Cache, settings
 from src.Misc import Misc
@@ -13,7 +12,7 @@ class Player_HUD_Display():
         self.player: Player = player
         self.health_bar = Progress_Bar(self.player.xp_goal, ((settings.PLAYER_XP_BAR_WIDTH - settings.SCREEN_MARGIN, settings.PLAYER_XP_BAR_HEIGHT)))
         self.xp_bar = Progress_Bar(self.player.xp_goal, ((settings.PLAYER_XP_BAR_WIDTH - settings.SCREEN_MARGIN, settings.PLAYER_XP_BAR_HEIGHT)))
-        self.faceset = Cache.Sprites.Facesets.Green_Ninja
+        self.faceset = pygame.transform.scale(Cache.Sprites.Facesets.Green_Ninja, (Cache.Sprites.Facesets.Green_Ninja.width * (settings.ZOOM / 2), Cache.Sprites.Facesets.Green_Ninja.height * (settings.ZOOM / 2)))
         self.name_and_score_label = Label("", (settings.PLAYER_NAME_AND_LEVEL_LABEL_WIDTH, settings.PLAYER_NAME_AND_LEVEL_LABEL_HEIGHT))
         self.hud_panel = Panel((1, 1))
         self.faceset_rect = pygame.Rect()
