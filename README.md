@@ -1,18 +1,16 @@
-Absolutely! Let's enhance the README.md for your Rougelike-Prototype to provide clear, engaging, and informative content for developers and players alike.
-
 
 ---
 
 🧙‍♂️ Rougelike Prototype
 
-A simple roguelike game built with Pygame, designed to explore procedural generation, turn-based combat, and dungeon crawling mechanics.
+A simple roguelike game built with Pygame-ce, designed to explore procedural generation, turn-based combat, and dungeon crawling mechanics.
 
 
 ---
 
 🎮 About
 
-Rougelike Prototype is a lightweight roguelike game developed using Pygame. It serves as both a playable prototype and a learning tool for game development enthusiasts interested in roguelike mechanics, procedural content generation, and Python-based game programming.
+Rougelike Prototype is a lightweight roguelike game developed using Pygame-ce. It serves as both a playable prototype and a learning tool for game development enthusiasts interested in roguelike mechanics, procedural content generation, and Python-based game programming.
 
 
 ---
@@ -37,9 +35,9 @@ Simple Controls: Easy-to-learn controls suitable for quick play sessions.
 
 Prerequisites
 
-Ensure you have Python 3.8+ and Pygame installed. You can install Pygame using pip:
+Ensure you have Python 3.8+ and Pygame-ce installed. You can install Pygame using pip:
 
-pip install pygame
+pip install pygame-ce
 
 Running the Game
 
@@ -86,21 +84,8 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 
-📸 Screenshots
-
- Exploring a procedurally generated dungeon.
-
- Engaging in turn-based combat with enemies.
-
-
----
-
 📢 Feedback & Contributions
 
 We welcome feedback and contributions! Please report bugs, suggest features, or submit pull requests via the GitHub Issues page.
 
-
----
-
-Would you like to include a gameplay trailer or a GIF showcasing the game in action? I can assist in embedding that as well.
 
