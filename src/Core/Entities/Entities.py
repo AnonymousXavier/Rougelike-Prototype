@@ -1,5 +1,6 @@
 import random
 import pygame
+from src.Globals import settings
 from src.Misc.Sprite import Sprite
 from src.Misc import Misc
 from src.Globals import Enums
@@ -16,10 +17,15 @@ class Entities(Sprite):
         self.max_health = stats_info.health
         self.health = self.max_health
         self.damage = stats_info.damage
-        self.level = 1
+        self.level = 1 
+
+        self.spawn_pos: tuple[int, int] = (0, 0)
+        self.tween_rect = pygame.Rect()
+        self.drawn_rect_on_world = pygame.Rect()
 
         self.sight_range = 5
         self.direction = (0, 0)
+        self.speed = 8
 
     def update_stats(self):
         self.max_health = self.max_health * self.level
@@ -79,6 +85,8 @@ class Entities(Sprite):
         if not v_blocked and not h_blocked:
             return hor_option if h_dist < v_dist else ver_option
 
+
+
         # If vertical path is blocked, go horizontal and vice versa
         if v_blocked and not h_blocked: 
             return hor_option
@@ -119,3 +127,22 @@ class Entities(Sprite):
 
     def update(self, grid_map: list[list[int, int]]):
         pass
+
+    def tween_movement(self):
+        if self.tween_rect.width == 0:
+            sx, sy = self.spawn_pos
+            self.tween_rect = pygame.Rect(sx * settings.ROOM_CELL_WIDTH, sy * settings.ROOM_CELL_HEIGHT, self.rect.width, self.rect.height)
+
+        dt = settings.DT
+        tx, ty = self.tween_rect.center
+        wx, wy = self.drawn_rect_on_world.center
+
+        dx, dy = wx - tx, wy - ty
+
+        inc = self.speed * dt
+        tx += min(abs(dx), inc) * Misc.sign(dx)
+        ty += min(abs(dy), inc) * Misc.sign(dy)
+
+        self.tween_rect.center = (tx, ty)
+
+

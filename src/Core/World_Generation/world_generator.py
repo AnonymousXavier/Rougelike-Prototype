@@ -10,7 +10,7 @@ class World_Generator:
     def __init__(self, rooms):
         self.number_of_rooms = self.get_optimal_room_count(rooms)
         print("Generated: ", self.number_of_rooms, " Rooms")
-        self.seed = int(time.time())
+        self.seed = int(1755860920)#self.seed = int(time.time())
         random.seed(self.seed)
         self.drunkards_walk = Drunkards_Walk(rooms)
         self.grid: list[list[int]] = []

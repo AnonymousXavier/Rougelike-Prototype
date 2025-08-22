@@ -118,8 +118,8 @@ class Main:
             xml.save(settings.PATH)
 
     def update(self):
-
         dt = self.clock.tick(settings.FPS) / 100
+        settings.DT = dt
         self.process_input()
 
         match self.state:

@@ -27,6 +27,7 @@ class World_Enemies_Data:
 class World:
     def __init__(self, n=None):
         self.window = pygame.display.get_surface()
+        self.draw_surface: pygame.Surface = pygame.Surface((0, 0))
         self.hud = None
         self.current_room_count = n or settings.INITIAL_ROOM_COUNT
         self.floor = self.current_room_count - settings.INITIAL_ROOM_COUNT
@@ -37,28 +38,20 @@ class World:
         self.enemies_data = World_Enemies_Data()
 
         self.player = Player(0)
-        self.camera = Camera()      
+        self.camera = Camera()     
         self.finished_initializing = False
         self.ready_to_move_to_next_floor = False
+        self.drawn_entities: list[Enemy] = []
 
         self.is_a_movement_key_pressed = False
         self.last_key_pressed = 0
         self.frames_holding_key = 0
         self.game_update_delay = 15 # Delay in case ur holding the key for long
 
-    def get_player_start_position(self):
-        room = self.world_generator.rooms[0]
-        w = h = room.size
-        x, y = room.top_left
+    # -------------------------------------------------------------------------------------- #
+    # --------------------------------------- SETUPS --------------------------------------- #
+    # -------------------------------------------------------------------------------------- #
 
-        return x + int(w / 2), y + int(h / 2)
-
-    def get_room_index_of(self, pos: tuple[int, int]):
-        for i, room in enumerate(self.world_generator.rooms):
-            if room.is_inside(pos):
-                return i
-        return -1 # Could be at the door!
-                
     def create_items_map(self):
         grid_map = self.world_generator.grid
         items_map: list[list[Interactable | None]] = [[None for _ in range(len(grid_map[0]))] for __ in range(len(grid_map))]
@@ -106,13 +99,6 @@ class World:
 
         return items_map
 
-    def will_block_room_passage(self, pos:tuple[int, int]):
-        blocks_around_coord = self.get_entities_around(pos, self.world_generator.grid)
-        for block in blocks_around_coord:
-            if block == Enums.World_Types.DOOR: 
-                return True
-        return False
-
     def create_entities_map(self):
         entities_map = []
         grid_map = self.world_generator.grid
@@ -133,6 +119,7 @@ class World:
                         if floor > 0:
                             enemy.level = random.randint(max(1, int(floor / 2)), floor + 1)
                             enemy.update_stats()
+                        enemy.spawn_pos = (j, i)
                         enemy.pos = (j, i)
                         self.enemies_data.total += 1
                         enemy.room_id = self.get_room_index_of(enemy.pos)
@@ -143,128 +130,58 @@ class World:
 
         # Add Player to Map
         self.player.pos = cx, cy
+        self.player.spawn_pos = cx, cy
         entities_map[cy][cx] = self.player
 
         return entities_map
 
-    def draw(self):
-        is_done_generating = self.world_generator.is_done_generating
-        if is_done_generating:
-            self.draw_map()
-
-    def get_grid_size(self):
-        return Misc.get_grid_size(self.world_generator.grid)
-
-    def get_camera_rect(self):
-        grid_width, grid_height = self.get_grid_size()
-        return self.camera.get_rect(grid_width, grid_height)
-
-    def draw_map(self):
-        grid_map = self.world_generator.grid
-        w = h = settings.ROOM_CELL_WIDTH
-        
-        camera_rect = self.get_camera_rect()
-        draw_area = pygame.Surface(camera_rect.size)
-
-        for grid_y in range(camera_rect.top, camera_rect.bottom):
-            i = grid_y - camera_rect.top
-            for grid_x in range(camera_rect.left, camera_rect.right):
-                j = grid_x - camera_rect.left
-                cell = grid_map[grid_y][grid_x]
-
-                y, x = i * h, j * w
-                rect = pygame.Rect(x, y, w, h)
-
-                sprite = pygame.Surface((0, 0))
-                # Layer 1: Map
-                match cell:
-                    case Enums.World_Types.WALL:
-                        sprite = Sprites.Tiles.wall
-                    case Enums.World_Types.FLOOR:
-                        sprite = Sprites.Tiles.floor
-                    case Enums.World_Types.DOOR:
-                        sprite = Sprites.Tiles.pathway
-                    case Enums.World_Types.BLANKS:
-                        sprite = Sprites.Tiles.blank
-                    case Enums.World_Types.STAIR:
-                        sprite = Sprites.Tiles.stair
-                
-                draw_area.blit(sprite, rect)
-
-                # Layer 2: interactables
-                if self.items_map:
-                    item = self.items_map[grid_y][grid_x]
-                    if item:
-                        item.rect = rect
-                        draw_area.blit(item.get_image(), rect)
-
-                # Layer 3: Entities
-                if self.entities_map:
-                    entity = self.entities_map[grid_y][grid_x]
-                    if entity:
-                        entity.rect = rect
-                        draw_area.blit(entity.get_image(), rect)
-                        
-        camera_render = pygame.transform.scale_by(draw_area, settings.ZOOM)
-        self.window.blit(camera_render)
-
-    def get_entities_around(self, ref_pos: tuple[int, int], temp_map: list[list], distance = 1):
-        enemies_in_range: list = []
-        grid_width, grid_height = Misc.get_grid_size(temp_map)
-
-        rx, ry = ref_pos
-        tx, ty = max(0, rx - distance), max(0, ry - distance) # Top Left coords
-        bx, by = min(rx + distance, grid_width), min(ry + distance, grid_height) # Bottom Right Coors
-
-        for i in range(ty, by + 1):
-            for j in range(tx, bx + 1):
-                if i == ry and j == rx: 
-                    continue
-                cell = temp_map[i][j]
-                if cell is not None: 
-                    enemies_in_range.append(cell)
-
-        return enemies_in_range
-
-    def process_attacks(self, temp_map: list[list]):
-        dead_enemies_pos = []
-        enemies_in_range: list[Entities] = self.get_entities_around(self.player.pos, temp_map)
-
-        # Enemies Attack Player and vice versa
-        player_attack_target = self.player.get_next_path_pos()
-        
-        for enemy in enemies_in_range:
-            enemy_attack_target = enemy.get_next_path_pos()
-
-            if player_attack_target == enemy.pos:
-                enemy.hurt_by(self.player.get_damage())
-
-            if not enemy.is_dead():
-                if enemy_attack_target == self.player.pos: 
-                    self.player.hurt_by(enemy.damage)
-            else: 
-                dead_enemies_pos.append((enemy.pos))
-
-        # Remove dead enemies
-        for (x, y) in dead_enemies_pos:
-            self.player.earn_xp_from(temp_map[y][x])
-            temp_map[y][x] = None
-
-    def count_enemies_in_room(self, room_index: int):
-        room = self.world_generator.rooms[room_index]
-        entities_count = 0
-        tx, ty = room.top_left
-        w = h = room.size
-
-        for i in range(ty, ty + h + 1):
-            for j in range(tx, tx + w + 1):
-                cell = self.entities_map[i][j]
-                if cell and cell != self.player: 
-                    print("Entity Found At: ", j, i, cell)
-                    entities_count += 1
-
-        return entities_count
+    # -------------------------------------------------------------------------------------- #
+    # --------------------------------------- UPDATE --------------------------------------- #
+    # -------------------------------------------------------------------------------------- #
     
+    def update(self, dt: float):
+        Save_Data.update(self)
+        if not self.world_generator.is_done_generating: 
+            self.world_generator.update(dt)
+        else:
+            if not self.entities_map: 
+                self.entities_map = self.create_entities_map()
+                self.items_map = self.create_items_map()
+                self.finished_initializing = True
+            if self.is_a_movement_key_pressed: 
+                self.update_game()
+
+            self.update_camera(dt)
+
+    def update_game(self):
+        if self.hud.inventory_display_hud.visible:
+            return
+        if self.should_update_game():
+            self.player.process_input(self.last_key_pressed)
+            self.update_current_room()
+            self.update_map()
+        
+        self.frames_holding_key += 1
+
+    def process_input(self, event: pygame.Event):
+        if event.type == pygame.KEYDOWN:
+            self.is_a_movement_key_pressed = event.key in settings.Controls.MOVEMENT
+            self.last_key_pressed = event.key
+        elif event.type == pygame.KEYUP:
+            self.is_a_movement_key_pressed = False
+            self.frames_holding_key = 0
+
+        # Cant Move is the camera is transitioning
+        if not self.camera.done_transitioning:
+            self.is_a_movement_key_pressed = False
+
+    def update_camera(self, dt: float):
+        self.camera.target = self.get_screen_sector_center()
+        self.camera.update(dt)
+
+    def update_current_room(self):
+        self.player.room_id = self.get_room_index_of(self.player.pos)
+
     def update_map(self):
         # Update Entities
         temp_map: list[list[Entities | None]] = Misc.clone_2D_array(self.entities_map)
@@ -309,6 +226,141 @@ class World:
         self.entities_map = temp_map
         self.entities_map[py][px] = self.player
 
+    # -------------------------------------------------------------------------------------- #
+    # ---------------------------------------- DRAW ---------------------------------------- #
+    # -------------------------------------------------------------------------------------- #
+
+    def draw(self):
+        is_done_generating = self.world_generator.is_done_generating
+        if is_done_generating:
+            self.draw_map()
+            self.tween_player_movement()
+            if settings.SPRITE_MOVEMENT:
+                self.draw_entities_with_tween()
+
+        camera_render = pygame.transform.scale_by(self.draw_surface, settings.ZOOM)
+        self.window.blit(camera_render)
+
+    def draw_map(self):
+        grid_map = self.world_generator.grid
+        w = h = settings.ROOM_CELL_WIDTH
+        
+        camera_rect = self.get_camera_rect()
+        draw_area = pygame.Surface(camera_rect.size)
+        self.drawn_entities = []
+
+        for grid_y in range(camera_rect.top, camera_rect.bottom):
+            i = grid_y - camera_rect.top
+            for grid_x in range(camera_rect.left, camera_rect.right):
+                j = grid_x - camera_rect.left
+                cell = grid_map[grid_y][grid_x]
+
+                draw_y, draw_x = i * h, j * w
+                actual_y, actual_x = grid_y * h, grid_x * w
+
+                draw_rect = pygame.Rect(draw_x, draw_y, w, h)
+                world_rect = pygame.Rect(actual_x, actual_y, w, h)
+
+                sprite = pygame.Surface((0, 0))
+                # Layer 1: Map
+                match cell:
+                    case Enums.World_Types.WALL:
+                        sprite = Sprites.Tiles.wall
+                    case Enums.World_Types.FLOOR:
+                        sprite = Sprites.Tiles.floor
+                    case Enums.World_Types.DOOR:
+                        sprite = Sprites.Tiles.pathway
+                    case Enums.World_Types.BLANKS:
+                        sprite = Sprites.Tiles.blank
+                    case Enums.World_Types.STAIR:
+                        sprite = Sprites.Tiles.stair
+                
+                draw_area.blit(sprite, draw_rect)
+
+                # Layer 2: interactables
+                if self.items_map:
+                    item = self.items_map[grid_y][grid_x]
+                    if item:
+                        item.rect = draw_rect
+                        draw_area.blit(item.get_image(), draw_rect)
+
+                # Layer 3: Entities
+                if self.entities_map:
+                    entity = self.entities_map[grid_y][grid_x]
+                    if entity:
+                        if entity != self.player:
+                            self.drawn_entities.append(entity)
+                        entity.rect = draw_rect
+                        entity.drawn_rect_on_world = world_rect
+
+                        if not settings.SPRITE_MOVEMENT:
+                            if entity == self.player: 
+                                continue
+                            draw_area.blit(entity.get_image(), draw_rect)
+
+        self.draw_surface = draw_area
+                        
+    def get_entities_around(self, ref_pos: tuple[int, int], temp_map: list[list], distance = 1):
+        enemies_in_range: list = []
+        grid_width, grid_height = Misc.get_grid_size(temp_map)
+
+        rx, ry = ref_pos
+        tx, ty = max(0, rx - distance), max(0, ry - distance) # Top Left coords
+        bx, by = min(rx + distance, grid_width), min(ry + distance, grid_height) # Bottom Right Coors
+
+        for i in range(ty, by + 1):
+            for j in range(tx, bx + 1):
+                if i == ry and j == rx: 
+                    continue
+                cell = temp_map[i][j]
+                if cell is not None: 
+                    enemies_in_range.append(cell)
+
+        return enemies_in_range
+
+    def process_attacks(self, temp_map: list[list]):
+        dead_enemies_pos = []
+        enemies_in_range: list[Entities] = self.get_entities_around(self.player.pos, temp_map)
+
+        # Enemies Attack Player and vice versa
+        player_attack_target = self.player.get_next_path_pos()
+        
+        for enemy in enemies_in_range:
+            enemy_attack_target = enemy.get_next_path_pos()
+
+            if player_attack_target == enemy.pos:
+                enemy.hurt_by(self.player.get_damage())
+
+            if not enemy.is_dead():
+                if enemy_attack_target == self.player.pos: 
+                    self.player.hurt_by(enemy.damage)
+            else: 
+                dead_enemies_pos.append((enemy.pos))
+
+        # Remove dead enemies
+        for (x, y) in dead_enemies_pos:
+            self.player.earn_xp_from(temp_map[y][x])
+            temp_map[y][x] = None
+
+    def draw_entities_with_tween(self):
+        for entity in self.drawn_entities:
+            entity.tween_movement()
+            self.draw_surface.blit(entity.get_image(), self.convert_tween_rect_to_drawn_pos(entity))
+
+    def tween_player_movement(self):
+        self.player.tween_movement()
+        self.draw_surface.blit(self.player.get_image(), self.convert_tween_rect_to_drawn_pos(self.player))
+
+    # -------------------------------------------------------------------------------------- #
+    # ---------------------------------- HELPER FUNCTIONS ---------------------------------- #
+    # -------------------------------------------------------------------------------------- #
+
+    def convert_tween_rect_to_drawn_pos(self, entity: Entities):
+        camera_rect = self.get_camera_rect()
+        ox, oy = camera_rect.left * settings.ROOM_CELL_WIDTH, camera_rect.top * settings.ROOM_CELL_WIDTH
+        px, py = entity.tween_rect.topleft
+        return pygame.Rect(px - ox, py - oy, self.player.rect.width, self.player.rect.height)
+
     def get_collisions_grid(self, entities_map_clone=None):
         collision_grid = Misc.clone_2D_array(entities_map_clone if entities_map_clone else self.entities_map)
         for i, row in enumerate(self.world_generator.grid):
@@ -318,6 +370,36 @@ class World:
                 elif self.items_map[i][j] and not self.items_map[i][j].can_walk_over: 
                     collision_grid[i][j] = self.items_map[i][j]
         return collision_grid
+
+    def get_player_start_position(self):
+        room = self.world_generator.rooms[0]
+        w = h = room.size
+        x, y = room.top_left
+
+        return x + int(w / 2), y + int(h / 2)
+
+    def get_room_index_of(self, pos: tuple[int, int]):
+        for i, room in enumerate(self.world_generator.rooms):
+            if room.is_inside(pos):
+                return i
+        return -1 # Could be at the door!
+
+    def will_block_room_passage(self, pos:tuple[int, int]):
+        blocks_around_coord = self.get_entities_around(pos, self.world_generator.grid)
+        for block in blocks_around_coord:
+            if block == Enums.World_Types.DOOR: 
+                return True
+        return False
+
+    def should_update_game(self):
+        return self.frames_holding_key % self.game_update_delay == 0
+
+    def get_grid_size(self):
+        return Misc.get_grid_size(self.world_generator.grid)
+
+    def get_camera_rect(self):
+        grid_width, grid_height = self.get_grid_size()
+        return self.camera.get_rect(grid_width, grid_height)
 
     def get_screen_sector_center(self):
         # Divide the Screen into sectors, each about the size of the camera's view
@@ -340,46 +422,17 @@ class World:
         attackable_enemies = self.get_entities_around(self.player.pos, self.entities_map)
         return [enemy for enemy in attackable_enemies if enemy.get_next_path_pos() == self.player.pos]
 
-    def update_camera(self, dt: float):
-        self.camera.target = self.get_screen_sector_center()
-        self.camera.update(dt)
+    def count_enemies_in_room(self, room_index: int):
+        room = self.world_generator.rooms[room_index]
+        entities_count = 0
+        tx, ty = room.top_left
+        w = h = room.size
 
-    def update(self, dt: float):
-        Save_Data.update(self)
-        if not self.world_generator.is_done_generating: 
-            self.world_generator.update(dt)
-        else:
-            if not self.entities_map: 
-                self.entities_map = self.create_entities_map()
-                self.items_map = self.create_items_map()
-                self.finished_initializing = True
-            if self.is_a_movement_key_pressed: 
-                self.update_game()
+        for i in range(ty, ty + h + 1):
+            for j in range(tx, tx + w + 1):
+                cell = self.entities_map[i][j]
+                if cell and cell != self.player: 
+                    print("Entity Found At: ", j, i, cell)
+                    entities_count += 1
 
-            self.update_camera(dt)
-
-    def update_current_room(self):
-        self.player.room_id = self.get_room_index_of(self.player.pos)
-
-    def should_update_game(self):
-        return self.frames_holding_key % self.game_update_delay == 0
-
-    def update_game(self):
-        if self.hud.inventory_display_hud.visible:
-            return
-        if self.should_update_game():
-            self.player.process_input(self.last_key_pressed)
-            self.update_current_room()
-            self.update_map()
-        
-        self.frames_holding_key += 1
-
-    def process_input(self, event: pygame.Event):
-        if event.type == pygame.KEYDOWN:
-            self.is_a_movement_key_pressed = event.key in settings.Controls.MOVEMENT
-            self.last_key_pressed = event.key
-        elif event.type == pygame.KEYUP:
-            self.is_a_movement_key_pressed = False
-            self.frames_holding_key = 0
-
-                    
+        return entities_count              

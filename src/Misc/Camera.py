@@ -58,14 +58,16 @@ class Camera:
         dx, dy = tx - gx, ty - gy
         vw, vh = self.camera_grid_view_width / 2, self.camera_grid_view_height / 2
 
-        bonus_speed = 1
         distance_multipliyer = Misc.get_vector_magnitude((dx, dy)) / Misc.get_vector_magnitude((vw, vh))
         distance_multipliyer = max(0.01, distance_multipliyer)
 
-        transition_increment = max(0.2, self.speed * dt * bonus_speed * distance_multipliyer)
+        transition_increment = max(0.2, self.speed * dt * distance_multipliyer)
 
         gx += min(abs(dx), transition_increment) * Misc.sign(dx) 
         gy += min(abs(dy), transition_increment) * Misc.sign(dy) 
 
         self.grid_pos = gx, gy
+
+    def done_transitioning(self):
+        return self.grid_pos == self.target
         
