@@ -67,6 +67,8 @@ class Player(Entities):
         interactable_obj = interactables_map[y][x]
         if isinstance(interactable_obj, Interactable) and not interactable_obj.can_walk_over:
             interactable_obj.interact(self)
+            if settings.PLAY_SOUND:
+                Cache.Audio.Sound.XP.play()
             self.xp += interactable_obj.xp_worth # Earn XP from Interaactables
             self.level_up_if_can()
             return True
