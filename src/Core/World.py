@@ -191,10 +191,12 @@ class World:
 
             if player_attack_target == enemy.pos:
                 enemy.hurt_by(self.player.get_damage())
+                enemy.apply_knockback(self.player.direction)
 
             if not enemy.is_dead():
                 if enemy_attack_target == self.player.pos: 
                     self.player.hurt_by(enemy.damage)
+                    self.player.apply_knockback(enemy.direction)
             else: 
                 dead_enemies_pos.append((enemy.pos))
 

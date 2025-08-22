@@ -10,6 +10,9 @@ class Entities(Sprite):
     def __init__(self, sheet: pygame.Surface, frames: list[pygame.Rect], stats_info):
         super().__init__(sheet, frames)
 
+        self.knockback_offset = [0, 0]
+        self.knockback_decay = 0.85  # friction
+
         self.name = stats_info.name
         self.room_id = 0
         self.target: tuple[int, int] | None = None
@@ -128,6 +131,14 @@ class Entities(Sprite):
     def update(self, grid_map: list[list[int, int]]):
         pass
 
+    def apply_knockback(self, attacker_direction: tuple[int, int], strength=10):
+        dx, dy = attacker_direction
+        kx, ky = self.knockback_offset
+        # Opposite of attacker direction
+        kx = dx * strength
+        ky = dy * strength
+        self.knockback_offset = kx, ky
+
     def tween_movement(self):
         if self.tween_rect.width == 0:
             sx, sy = self.spawn_pos
@@ -143,16 +154,25 @@ class Entities(Sprite):
         wx, wy = self.drawn_rect_on_world.center
 
         dx, dy = wx - tx, wy - ty
-        
+
         # Base increment
         inc = self.speed * dt
 
-        # Distance multiplier (smooth ease-in)
+        # Distance multiplier (ease-in)
         ease_factor = Misc.get_vector_magnitude((dx, dy)) * 0.2
         ease_factor = max(0.1, ease_factor)
 
         tx += min(abs(dx), inc * ease_factor) * Misc.sign(dx)
         ty += min(abs(dy), inc * ease_factor) * Misc.sign(dy)
+
+        tx += self.knockback_offset[0]
+        ty += self.knockback_offset[1]
+
+        # Knockback decay
+        kx, ky = self.knockback_offset
+        kx *= self.knockback_decay
+        ky *= self.knockback_decay
+        self.knockback_offset = kx, ky
 
         self.tween_rect.center = (tx, ty)
 
