@@ -1,4 +1,4 @@
-from src.Globals import Cache
+from src.Globals import Cache, settings
 from src.Globals import Enums
 from src.Core.Items.Item import Item
 from src.Globals.Cache import Sprites, Stats_Info
@@ -21,6 +21,8 @@ class Consumable(Item):
             case Enums.CONSUMABLES.BEEF | Enums.CONSUMABLES.CALAMARI:
                 calamari_buff = Cache.Consumable_Buff(self.id, self.effect_duration)
                 player.passive_buffs.append(calamari_buff)
-        Cache.Audio.Sound.ITEM.play()
+
+        if settings.PLAY_SOUND:
+            Cache.Audio.Sound.ITEM.play()
 
             

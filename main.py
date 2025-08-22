@@ -85,7 +85,8 @@ class Main:
         self.hud.world = self.world
 
         self.level_transition_animation.start()
-        Cache.Audio.Sound.NEXT_FLOOR.play()
+        if settings.PLAY_SOUND:
+            Cache.Audio.Sound.NEXT_FLOOR.play()
 
         
     def draw_game(self):
@@ -150,8 +151,9 @@ class Main:
                 self.update_game(dt)
                 self.update_transition(dt)
             case State.START:
-                self.menu.update()
+                self.menu.update_start_menu()
             case State.GAME_OVER:
+                self.menu.update_game_over_menu()
                 self.update_transition(dt)
 
         self.manage_states()
@@ -163,11 +165,17 @@ class Main:
 
         pygame.display.update()
 
+    def reset(self):
+        self.world = World()
+        self.hud = HUD(self.world)
+        self.menu = Menu(self.world)
+
     def manage_states(self):
         match self.state:
             case State.GAME:
                 if self.world.player.health < 0:
-                    Cache.Audio.Sound.GAME_OVER.play()
+                    if settings.PLAY_SOUND:
+                        Cache.Audio.Sound.GAME_OVER.play()
                     self.state = State.GAME_OVER
                     self.level_transition_animation.start()
                     self.change_game_music()
@@ -176,6 +184,11 @@ class Main:
                     Cache.Audio.Sound.START_GAME.play()
                     self.state = State.GAME
                     self.change_game_music()
+            case State.GAME_OVER:
+                if self.menu.return_to_menu:
+                    self.state = State.START
+                    self.change_game_music()
+                    self.reset()
 
 
     def draw(self):

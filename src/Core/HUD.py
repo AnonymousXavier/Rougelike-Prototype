@@ -1,4 +1,5 @@
 import pygame
+from src.UI.options_menu import Options_Menu
 from src.UI.Active_Buffs_HUD import Active_Buff_HUD_Display
 from src.UI.Player_stats_hud import Player_Stats_HUD
 from src.UI.Player_HUD import Player_HUD_Display
@@ -24,6 +25,7 @@ class HUD:
 
         # Player 
         self.can_display_inventory = False
+        self.options_menu = Options_Menu()
         self.player_hud_display = Player_HUD_Display(self.world.player)
         self.inventory_display_hud = Inventory_Display(self.world.player)
         self.player_stats_hud = Player_Stats_HUD(self.world.player)
@@ -53,6 +55,7 @@ class HUD:
         self.inventory_display_hud.draw(self.surface)
         self.player_stats_hud.draw(self.surface)
         self.player_active_buff_display.draw(self.surface)
+        self.options_menu.draw(self.surface)
 
         self.window.blit(self.surface)
 
@@ -138,7 +141,9 @@ class HUD:
             self.update_enemy_inrange_info(dt)
 
         self.inventory_display_hud.update(dt)
+        self.options_menu.update()
         self.player_stats_hud.update()
+
         if self.world.should_update_game():
             self.player_active_buff_display.update()
 
@@ -146,7 +151,12 @@ class HUD:
         if event.type == pygame.KEYDOWN and event.key == settings.Controls.INVENTORY:
             self.inventory_display_hud.visible = not self.inventory_display_hud.visible
             self.player_stats_hud.visible = not self.player_stats_hud.visible
+        if event.type == pygame.KEYDOWN and event.key == settings.Controls.OPTIONS:
+            self.options_menu.visible = not self.options_menu.visible 
+
+
         self.inventory_display_hud.process_input(event)
         self.player_stats_hud.process_input(event)
+        self.options_menu.process_input(event)
 
         

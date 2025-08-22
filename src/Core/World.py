@@ -260,8 +260,8 @@ class World:
         is_done_generating = self.world_generator.is_done_generating
         if is_done_generating:
             self.draw_map()
-            self.tween_player_movement()
             if settings.SPRITE_MOVEMENT:
+                self.tween_player_movement()
                 self.draw_entities_with_tween()
 
         camera_render = pygame.transform.scale_by(self.draw_surface, settings.ZOOM)
@@ -320,8 +320,6 @@ class World:
                         entity.drawn_rect_on_world = world_rect
 
                         if not settings.SPRITE_MOVEMENT:
-                            if entity == self.player: 
-                                continue
                             draw_area.blit(entity.get_image(), draw_rect)
 
         self.draw_surface = draw_area
