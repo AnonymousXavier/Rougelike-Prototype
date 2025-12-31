@@ -153,6 +153,8 @@ class HUD:
             self.player_stats_hud.visible = not self.player_stats_hud.visible
         if event.type == pygame.KEYDOWN and event.key == settings.Controls.OPTIONS:
             self.options_menu.visible = not self.options_menu.visible 
+            self.player_stats_hud.visible = False
+            self.inventory_display_hud.visible = False
 
 
         self.inventory_display_hud.process_input(event)
